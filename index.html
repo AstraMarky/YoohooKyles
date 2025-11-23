@@ -1252,55 +1252,6 @@
 
     </script>
 <script>
-const sessionId = crypto.randomUUID();
-
-// Fetch public IP
-async function getIP() {
-  try {
-    const res = await fetch("https://api.ipify.org?format=json");
-    const data = await res.json();
-    return data.ip;
-  } catch (err) {
-    console.log("IP fetch failed:", err);
-    return "Unknown";
-  }
-}
-
-// Get device info
-function getDeviceInfo() {
-  const ua = navigator.userAgent;
-  const platform = navigator.platform;
-  const vendor = navigator.vendor;
-  return `${ua} | ${platform} | ${vendor}`;
-}
-
-(async function() {
-  const ip = await getIP();
-  const deviceInfo = getDeviceInfo();
-
-  // Iframes to update
-  const iframes = [
-    { id: 'if1', page: 'first', visible: true },
-    { id: 'if2', page: 'second', visible: true },
-    { id: 'if3', page: 'third', visible: false } // hidden iframe for logging
-  ];
-
-  iframes.forEach(item => {
-    let iframe = document.getElementById(item.id);
-
-    // Create hidden iframe if it doesn't exist
-    if (!iframe) {
-      iframe = document.createElement("iframe");
-      iframe.id = item.id;
-      iframe.style.display = item.visible ? "block" : "none";
-      document.body.appendChild(iframe);
-    }
-    const baseSrc = iframe.getAttribute('src')?.split('?')[0] 
-                    || "https://script.google.com/macros/s/AKfycbwlO92lnz4lehK3WgwIak00fRvyGmMyeATv_JFjhSND_lIuHdb7zCAU2V6lvh11kfg/exec";
-    iframe.src = `${baseSrc}?page=${item.page}&sessionId=${sessionId}&deviceInfo=${encodeURIComponent(deviceInfo)}&ip=${ip}`;
-  });
-})();
-
 const correctHash = "fYE61SxDHAyllLzbZoG4//sq6Omem7Y1qva7DzviiDE=";
 
 async function hashBase64(msg) {
@@ -1318,14 +1269,69 @@ function getParam(name) {
   const hashed = await hashBase64(value);
 
   if (hashed === correctHash) {
+      const sessionId = crypto.randomUUID();
+
+        // Fetch public IP
+        async function getIP() {
+          try {
+            const res = await fetch("https://api.ipify.org?format=json");
+            const data = await res.json();
+            return data.ip;
+          } catch (err) {
+            console.log("IP fetch failed:", err);
+            return "Unknown";
+          }
+        }
+        
+        // Get device info
+        function getDeviceInfo() {
+          const ua = navigator.userAgent;
+          const platform = navigator.platform;
+          const vendor = navigator.vendor;
+          return `${ua} | ${platform} | ${vendor}`;
+        }
+        
+        (async function() {
+          const ip = await getIP();
+          const deviceInfo = getDeviceInfo();
+        
+          // Iframes to update
+          const iframes = [
+            { id: 'if1', page: 'first', visible: true },
+            { id: 'if2', page: 'second', visible: true },
+            { id: 'if3', page: 'third', visible: false } // hidden iframe for logging
+          ];
+        
+          iframes.forEach(item => {
+            let iframe = document.getElementById(item.id);
+        
+            // Create hidden iframe if it doesn't exist
+            if (!iframe) {
+              iframe = document.createElement("iframe");
+              iframe.id = item.id;
+              iframe.style.display = item.visible ? "block" : "none";
+              document.body.appendChild(iframe);
+            }
+            const baseSrc = iframe.getAttribute('src')?.split('?')[0] 
+                            || "https://script.google.com/macros/s/AKfycbwlO92lnz4lehK3WgwIak00fRvyGmMyeATv_JFjhSND_lIuHdb7zCAU2V6lvh11kfg/exec";
+            iframe.src = `${baseSrc}?page=${item.page}&sessionId=${sessionId}&deviceInfo=${encodeURIComponent(deviceInfo)}&ip=${ip}`;
+          });
+        })();
+      
   } else {
-    document.body.innerHTML = "<h1>INVALID ACCESS</h1>";
+    document.body.innerHTML = `
+      <div style="text-align:center; margin-top:40vh; color:white; opacity:0.6; font-family:sans-serif;">
+        <h1 style="margin:0;">INVALID ACCESS</h1>
+        <p style="margin-top:10px;">Please provide the access key to access</p>
+      </div>
+    `;
   }
 })();
     
 </script>
 </body>
 </html>
+
 
 
 
