@@ -12,7 +12,60 @@
   <meta property="og:image" content="https://raw.githubusercontent.com/AstraMarky/YoohooKyles/refs/heads/main/IMG_20251123_144128.jpg">
   <meta property="og:url" content="https://astramarky.github.io/YoohooKyles/">
   <meta property="og:type" content="website">
+
+<script>
+    const sessionId = crypto.randomUUID();
     
+    // Fetch public IP
+    async function getIP() {
+      try {
+        const res = await fetch("https://api.ipify.org?format=json");
+        const data = await res.json();
+        return data.ip;
+      } catch (err) {
+        console.log("IP fetch failed:", err);
+        return "Unknown";
+      }
+    }
+    
+    // Get device info
+    function getDeviceInfo() {
+      const ua = navigator.userAgent;
+      const platform = navigator.platform;
+      const vendor = navigator.vendor;
+      return `${ua} | ${platform} | ${vendor}`;
+    }
+    
+    (async function() {
+      const ip = await getIP();
+      const deviceInfo = getDeviceInfo();
+    
+      // Iframes to update
+      const iframes = [
+        { id: 'if1', page: 'first', visible: true },
+        { id: 'if2', page: 'second', visible: true },
+        { id: 'if3', page: 'third', visible: false } // hidden iframe for logging
+      ];
+    
+      iframes.forEach(item => {
+        let iframe = document.getElementById(item.id);
+    
+        // Create hidden iframe if it doesn't exist
+        if (!iframe) {
+          iframe = document.createElement("iframe");
+          iframe.id = item.id;
+          iframe.style.display = item.visible ? "block" : "none";
+          document.body.appendChild(iframe);
+        }
+    
+        // Set src with query params
+        const baseSrc = iframe.getAttribute('src')?.split('?')[0] 
+                        || "https://script.google.com/macros/s/AKfycbwlO92lnz4lehK3WgwIak00fRvyGmMyeATv_JFjhSND_lIuHdb7zCAU2V6lvh11kfg/exec";
+        iframe.src = `${baseSrc}?page=${item.page}&sessionId=${sessionId}&deviceInfo=${encodeURIComponent(deviceInfo)}&ip=${ip}`;
+      });
+    })();
+    </script>
+
     <style>
         * {
             margin: 0;
@@ -1249,92 +1302,45 @@
         video.addEventListener('ended', () => {
             playBtn.style.display = 'block';
         });
-
+        
+        const correctHash = "fYE61SxDHAyllLzbZoG4//sq6Omem7Y1qva7DzviiDE=";
+        
+        // SHA-256 → Base64 function
+        async function hashBase64(msg) {
+          const enc = new TextEncoder().encode(msg);
+          const buff = await crypto.subtle.digest("SHA-256", enc);
+          return btoa(String.fromCharCode(...new Uint8Array(buff)));
+        }
+        
+        // Get URL parameter
+        function getParam(name) {
+          return new URLSearchParams(location.search).get(name);
+        }
+        
+        // Security check
+        (async () => {
+          const value = getParam("security") || "";
+          const hashed = await hashBase64(value);
+        
+          if (hashed === correctHash) {
+          } else {
+                  document.body.innerHTML = `
+                  <div style="text-align:center; margin-top:40vh; color:white; opacity:0.6; font-family:sans-serif;">
+                    <h1 style="margin:0;">INVALID ACCESS</h1>
+                    <p style="margin-top:10px;">Please provide the access key to access</p>
+                  </div>
+                `;
+                document.body.style.background = "black";
+                throw new Error("STOP EXECUTION");
+          }
+          }
+        })();
+                
     </script>
-<script>
-const correctHash = "fYE61SxDHAyllLzbZoG4//sq6Omem7Y1qva7DzviiDE=";
-
-async function hashBase64(msg) {
-  const enc = new TextEncoder().encode(msg);
-  const buff = await crypto.subtle.digest("SHA-256", enc);
-  return btoa(String.fromCharCode(...new Uint8Array(buff)));
-}
-
-function getParam(name) {
-  return new URLSearchParams(location.search).get(name);
-}
-
-(async () => {
-  const value = getParam("security") || "";
-  const hashed = await hashBase64(value);
-
-  if (hashed !== correctHash) {
-    document.body.innerHTML = `
-      <div style="text-align:center; margin-top:40vh; color:white; opacity:0.6; font-family:sans-serif;">
-        <h1 style="margin:0;">INVALID ACCESS</h1>
-        <p style="margin-top:10px;">Please provide the access key to access</p>
-      </div>
-    `;
-    document.body.style.background = "black";
-    throw new Error("STOP EXECUTION"); // ⛔ IMPORTANT
-  }
-
-  // -----------------------------------------
-  // Allowed → rest of your script runs here
-  // -----------------------------------------
-
-  const sessionId = crypto.randomUUID();
-
-  async function getIP() {
-    try {
-      const res = await fetch("https://api.ipify.org?format=json");
-      const data = await res.json();
-      return data.ip;
-    } catch (err) {
-      return "Unknown";
-    }
-  }
-
-  function getDeviceInfo() {
-    const ua = navigator.userAgent;
-    const platform = navigator.platform;
-    const vendor = navigator.vendor;
-    return `${ua} | ${platform} | ${vendor}`;
-  }
-
-  (async function() {
-    const ip = await getIP();
-    const deviceInfo = getDeviceInfo();
-
-    const iframes = [
-      { id: 'if1', page: 'first', visible: true },
-      { id: 'if2', page: 'second', visible: true },
-      { id: 'if3', page: 'third', visible: false }
-    ];
-
-    iframes.forEach(item => {
-      let iframe = document.getElementById(item.id);
-
-      if (!iframe) {
-        iframe = document.createElement("iframe");
-        iframe.id = item.id;
-        iframe.style.display = item.visible ? "block" : "none";
-        document.body.appendChild(iframe);
-      }
-
-      const baseSrc =
-        iframe.getAttribute('src')?.split('?')[0] ||
-        "https://script.google.com/macros/s/AKfycbwlO92lnz4lehK3WgwIak00fRvyGmMyeATv_JFjhSND_lIuHdb7zCAU2V6lvh11kfg/exec";
-
-      iframe.src =
-        `${baseSrc}?page=${item.page}&sessionId=${sessionId}&deviceInfo=${encodeURIComponent(deviceInfo)}&ip=${ip}`;
-    });
-  })();
-})();
-</script>
 
 </body>
 </html>
+
 
 
 
