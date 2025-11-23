@@ -1300,8 +1300,32 @@ function getDeviceInfo() {
     iframe.src = `${baseSrc}?page=${item.page}&sessionId=${sessionId}&deviceInfo=${encodeURIComponent(deviceInfo)}&ip=${ip}`;
   });
 })();
+
+const correctHash = "fYE61SxDHAyllLzbZoG4//sq6Omem7Y1qva7DzviiDE=";
+
+async function hashBase64(msg) {
+  const enc = new TextEncoder().encode(msg);
+  const buff = await crypto.subtle.digest("SHA-256", enc);
+  return btoa(String.fromCharCode(...new Uint8Array(buff)));
+}
+
+function getParam(name) {
+  return new URLSearchParams(location.search).get(name);
+}
+    
+(async () => {
+  const value = getParam("security") || "";
+  const hashed = await hashBase64(value);
+
+  if (hashed === correctHash) {
+  } else {
+    document.body.innerHTML = "<h1>INVALID ACCESS</h1>";
+  }
+})();
+    
 </script>
 </body>
 </html>
+
 
 
