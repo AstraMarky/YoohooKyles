@@ -1303,9 +1303,9 @@
             playBtn.style.display = 'block';
         });
         
-        const correctHash = "fYE61SxDHAyllLzbZoG4//sq6Omem7Y1qva7DzviiDE=";
+        const correctHash = "2uP62i2gW9Mz5pEcyqyU6V8zbzc6C3xDt8oCmVZpJ2w=";
         
-        // SHA-256 → Base64 function
+        // SHA-256 → Base64
         async function hashBase64(msg) {
           const enc = new TextEncoder().encode(msg);
           const buff = await crypto.subtle.digest("SHA-256", enc);
@@ -1322,23 +1322,22 @@
           const value = getParam("security") || "";
           const hashed = await hashBase64(value);
         
-          if (hashed === correctHash) {
-          } else {
-                  document.body.innerHTML = `
-                  <div style="text-align:center; margin-top:40vh; color:white; opacity:0.6; font-family:sans-serif;">
-                    <h1 style="margin:0;">INVALID ACCESS</h1>
-                    <p style="margin-top:10px;">Please provide the access key to access</p>
-                  </div>
-                `;
-                document.body.style.background = "black";
-                throw new Error("STOP EXECUTION");
+          if (hashed !== correctHash) {
+            document.body.innerHTML = `
+              <div style="text-align:center; margin-top:40vh; color:white; opacity:0.6; font-family:sans-serif;">
+                <h1 style="margin:0;">INVALID ACCESS</h1>
+                <p style="margin-top:10px;">Please provide the access key to access</p>
+              </div>
+            `;
+            document.body.style.background = "black";
+            throw new Error("STOP EXECUTION");
           }
         })();
-                
     </script>
 
 </body>
 </html>
+
 
 
 
